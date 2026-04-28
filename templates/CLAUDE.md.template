@@ -1,0 +1,234 @@
+# {{PROJECT_NAME}} 项目规则
+
+> 基于 SDD Framework V4（submodule: {{FRAMEWORK_DIR}}）。
+> 替换所有 `{{占位符}}` 后删除本行。
+
+---
+
+## 规则 0：规格文件必须以模板为起点（最高优先级，优先于规则 1）
+
+创建任何规格文件时，**必须先 Read 对应模板**，以模板章节序号为骨架再填充业务内容。
+
+| 要创建的文件 | 必须先读的模板 |
+|------------|-------------|
+| `{{SPEC_DIR}}/PRODUCT_SPEC.md` | `{{FRAMEWORK_DIR}}/templates/spec/L1-PRODUCT_SPEC.md` |
+| `{{SPEC_DIR}}/DATA_SPEC.md` | `{{FRAMEWORK_DIR}}/templates/spec/L1-DATA_SPEC.md` |
+| `{{SPEC_DIR}}/API_SPEC.md` | `{{FRAMEWORK_DIR}}/templates/spec/L1-API_SPEC.md` |
+| `{{SPEC_DIR}}/SECURITY_SPEC.md` | `{{FRAMEWORK_DIR}}/templates/spec/L1-SECURITY_SPEC.md` |
+| `{{SPEC_DIR}}/UI_SPEC.md` | `{{FRAMEWORK_DIR}}/templates/spec/L1-UI_SPEC.md` |
+| `{{SPEC_DIR}}/features/*/spec.md` | `{{FRAMEWORK_DIR}}/templates/spec/L1-FEATURE_SPEC.md` |
+| `{{SPEC_DIR}}/bc/bc-*/spec.md` | 遵循 `{{SPEC_DIR}}/DDD_SPEC.md §9` 格式 |
+
+---
+
+## 规则 1：SDD 强制响应模板（高优先级，仅次于规则 0）
+
+收到任何**任务型消息**后，响应**必须以以下分析块作为固定开头**：
+
+```
+## SDD 分析
+
+**需求分类**: [新功能 / Bug修复 / 优化 / 样式调整]
+**FD**: [编号+名称]
+**影响 AC**: [AC编号 / 需新增AC]
+**BACKLOG 检查**: [命中项 / 无命中]
+**UJ/US/AC 影响检测**: [触发阶段 / 不触发]
+
+### Spec 变更计划
+- [变更内容]
+
+### 实施步骤
+1. ...
+```
+
+执行顺序：① 输出分析块 → ② 编辑 spec 文件 → ③-A 若有新端点先完成 API 契约 → ④ 编写代码 → ⑤ 测试 → ⑥ 自检表
+
+**判定标准**：响应中有 `{{CODE_DIRS}}` 下的 Edit/Write，但没有 `## SDD 分析` 块 → 流程违规。
+
+> **提示**：使用 `/sdd-implement-feature` Skill 可自动遵循此流程。
+
+---
+
+## 规则 2：文档门禁（5 类文档条件触发，触发后必须即时更新）
+
+下表的文档在**对应变更发生时**必须在当次任务中完成同步，不得拖入 BACKLOG：
+
+| 触发条件 | 必须更新的文档 |
+|---------|-------------|
+| 新增或修改功能点、AC、BR | `{{SPEC_DIR}}/features/*/spec.md` |
+| Schema / 表结构 / 字段变更 | `DATA_SPEC.md` |
+| 新增端点或修改端点入参/出参 | `API_SPEC.md`（§9 完整契约，非仅索引）|
+| 前端页面、交互、组件变更 | `UI_SPEC.md` |
+| 权限、认证、加密、审计变更 | `SECURITY_SPEC.md` |
+
+> **不涉及则不需更新**。纯 Bug 修复不新增字段时，DATA_SPEC 无需动。
+> 判断标准：自检表中该项填 N/A（不适用），而非 ❌（违规）。
+
+---
+
+## 规则 3：BACKLOG 动态唤醒
+
+每次接收新任务时，必须读取 `{{BACKLOG_PATH}}`，按以下触发类型匹配：
+`module` / `keyword` / `scenario` / `blocker_for` / `co_fix` / `prerequisite`
+
+命中项向用户汇报，由用户决定是否处理。
+
+---
+
+## 规则 4：自检清单（Step ⑥，任务完成时输出）
+
+```markdown
+| 检查项 | 状态 | 说明 |
+|--------|------|------|
+| SDD 分析块 | ✅/❌ | |
+| 首个 Edit → spec | ✅/❌ | |
+| AC 覆盖测试 | ✅/❌ | |
+| 文档门禁（5类）| ✅/❌ | |
+| AC 驱动测试（非实现驱动）| ✅/❌ | |
+| 变更同步检查（16项）| ✅/❌ | |
+| BACKLOG 更新 | ✅/❌ | |
+| 静默跳过检查 | ✅/❌ | |
+```
+
+---
+
+## 规则 5：简化场景
+
+| 场景 | 可省略步骤 | 约束 |
+|------|-----------|------|
+| 纯 Bug 修复（AC 正确，实现有误）| Step 2 | 分析块中注明"AC 无误" |
+| 纯样式/文案调整 | Step 2, 3 | 注明"无数据/API/AC 变更" |
+
+**紧急绕过 spec-first Hook**（留审计痕迹）：
+
+```bash
+echo "bypass: <原因>" > .claude/.session-spec-touched
+```
+
+---
+
+## 规则 6：测试质量规则
+
+- **测试从 AC 推导，禁止从实现代码推导**（使用 `/sdd-write-tests` Skill）
+- Mock 对象使用工厂函数，满足完整接口（不允许 `as any` 缺字段）
+- 每改一个模块立即跑该模块测试
+- 自检问句："如果实现方式变了但业务结果不变，这个测试还能过吗？"
+
+**六层展开模型**（按 AC 类型选用，权威来源：`{{FRAMEWORK_DIR}}/standards/six-layer-model.md`）：
+
+| 层 | CRUD | 状态机 | 输入校验 | 权限 | 搜索 |
+|----|------|--------|---------|------|------|
+| L1 等价类 | M | M | M | M | M |
+| L2 边界值 | M | O | M | M | O |
+| L3 决策表 | O | M | — | M | — |
+| L4 状态转换 | — | M | — | O | — |
+| L5 组合测试 | O | O | — | O | M |
+| L6 错误猜测 | M | M | M | M | M |
+
+---
+
+## 规则 7：变更同步检查清单（Step ⑥ 兜底）
+
+```
+□1  Schema 变更 → DATA_SPEC       □2  DTO 变更 → API_SPEC
+□3  新端点 → API_SPEC             □4  新功能 → Feature Spec（新增 AC）
+□5  前端页面变更 → UI_SPEC         □6  新字段/新逻辑 → 补写测试
+□7  前端展示后端新字段（联动）      □8  构造函数变更 → 更新 mock
+□9  业务规则变更 → BR 表           □10 PRODUCT_SPEC 功能描述是否更新
+□11 新增 AC → 10 分钟内补测试      □12 新 Service → 创建测试文件
+□13 跨 FD 联动 → 被调用方 spec 补 AC  □14 Mock → 工厂函数，满足完整接口
+□15 TDD Green → 回验断言与实际返回匹配  □16 每模块改完立即跑测试
+```
+
+---
+
+## 规则 8：DDD 合规检查
+
+涉及**新建聚合、新建服务类、新增跨 BC 通信、新增领域事件**时，自检表中检查 5 项：
+
+| 检查项 | 判断标准 |
+|--------|---------|
+| 层级归属 | 新代码在正确层（Interface/AppService/Domain/Infra）|
+| 聚合根不变量 | 业务规则在聚合根方法内强制（非 Service 直接赋值）|
+| 事务边界 | 一个事务只修改一个聚合根 |
+| 领域事件注册 | 新跨 BC 事件已在 `{{SPEC_DIR}}/DOMAIN_EVENT_CATALOG.md` 注册 |
+| BC 间依赖 | 跨 BC 写操作通过事件（异步），非直接调用 |
+
+> **使用 `/sdd-bc-design` Skill** 可引导完成完整的 BC 设计与合规检查。
+
+---
+
+## 规则 9：UJ/US/AC 体系化生成（自动触发）
+
+| 检测信号 | 触发阶段 |
+|---------|---------|
+| 新建 FD spec 文件 | **全三段**（UJ → US → AC）|
+| 涉及 USER_JOURNEY_SPEC.md 或 UJ 内容 | **UJ 阶段** |
+| 涉及 FD spec "用户故事"节 | **US 阶段** |
+| 涉及 FD spec "验收标准"节或新 API 端点 | **AC 阶段** |
+| 纯 Bug 修复 / 样式调整 | **不触发** |
+
+> **使用 `/sdd-generate-uj` Skill** 系统化生成 UJ/US，使用 `/sdd-write-ac` 生成 AC。
+
+---
+
+## 规则 10：API 契约先行
+
+编写任何 Controller 方法前，必须先在 `API_SPEC.md §9` 中完成该端点完整契约。
+
+§9 契约必须包含：方法+路径 / 权限要求 / 请求体 Schema / 成功响应 Schema / 错误码列表
+
+> **`/sdd-implement-feature` Skill** 的 Step 3 会自动执行此步骤。
+
+---
+
+## 规则 11：企业规范强制合规（按需配置）
+
+{{ENTERPRISE_RULES}}
+
+<!--
+若使用企业内部规范，取消注释以下内容并根据实际情况修改：
+
+### §11.1 MySQL 命名规范
+- 表名：全小写 + `{prefix}_{name}_t` 格式，`@@map` 声明
+- 字段：Prisma camelCase + `@map("snake_case")`
+- 主键：VARCHAR(64) UUID，应用层生成
+- 6 个标准审计字段（createBy/createDate/lastUpdatedBy/lastUpdateDate/lastUpdateVersion/deleteFlag）
+- 软删除：所有查询过滤 `deleteFlag: 'N'`
+- 索引前缀：普通 `idx_`，唯一 `idx_uk_`，外键 `idx_fk_`
+
+### §11.2 API 错误处理规范
+- 业务异常（not found / forbidden / 状态机违规）→ HTTP 200，`{code, message, data: null}`
+- 错误码格式：`errorcode.{appname}.{module}.{exception}`（4 段，共 4 个点分节，示例：`errorcode.myapp.skill.notFound`）
+- 禁止在 AppService 使用 NestJS HTTP 异常类（NotFoundException 等）
+- 分页响应使用 pageVO 嵌套：`{list, pageVO: {curPage, pageSize, totalPages, totalRows}}`
+
+### §11.3 Elasticsearch 规范
+- 索引名：全小写字母+数字，禁止点号开头
+- `action.auto_create_index=false`，`index.mapper.dynamic=false`
+-->
+
+---
+
+## 项目上下文
+
+- **项目名称**: {{PROJECT_NAME}}
+- **技术栈**: {{TECH_STACK}}
+- **代码目录**: {{CODE_DIRS}}
+- **SDD 规格目录**: {{SPEC_DIR}}
+- **BACKLOG**: {{BACKLOG_PATH}}
+- **框架目录**: {{FRAMEWORK_DIR}}
+
+---
+
+## 可用 Skills（`/` 调用）
+
+| Skill | 层级 | 用途 |
+|-------|------|------|
+| `/sdd-init-project` | L3 | 从零初始化 SDD 项目 |
+| `/sdd-implement-feature` | L2 | 实现一个 Feature（完整流程）|
+| `/sdd-bc-design` | L2 | 设计一个限界上下文 |
+| `/sdd-write-ac` | L1 | 生成验收标准（AC）|
+| `/sdd-write-tests` | L1 | 从 AC 推导测试用例 |
+| `/sdd-generate-uj` | 工具 | 生成用户旅程和用户故事 |
+| `/sdd-review-spec` | 工具 | 规格质量自检 |
