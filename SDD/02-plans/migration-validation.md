@@ -15,7 +15,7 @@
 | 3 | 五种宿主协议与插件入口回放；20 个核心+适配测试 | 20/20 通过；非真实模型会话 |
 | 4 | 16 个安装回归、晚期故障回滚；PowerShell 包装器中文空格路径安装/诊断/卸载 | 全部通过 |
 | 5 | 实际子进程测试、Git base/head、历史采用率、编码可移植性 | 通过；CI 配置已生成，远端 Windows/Linux 作业尚未执行 |
-| 6 | 统一回归、本仓库任务证据、包装器与配置语法 | 本地检查通过；暂存被 .git 写权限拒绝，提交后验证待执行 |
+| 6 | 统一回归、本仓库任务证据、包装器与配置语法 | 本地检查通过；主体提交 4d01277，提交范围验证通过 |
 
 ## 新发现问题
 
@@ -40,7 +40,8 @@
 | V5-013 | 修改过的注册在卸载后可能引用已删运行时；doctor 对缺失配置直接异常 | 卸载预检中止；doctor 返回明确诊断 | 注册修改、缺失配置与资源保留测试通过 |
 | V5-014 | 悬空 symlink 不被 existsSync 检测 | 逐路径段使用 lstat 检查 | 悬空 junction 越界反例通过 |
 | V5-015 | 最终 diff 检查发现 Skill 尾随空白 | 删除尾随空白 | git diff --check 通过 |
-| V5-016 | git add --all 无法创建 D:/workspace/openSDD/.git/index.lock，Permission denied；不存在遗留锁 | 环境阻塞：需要允许当前仓库 .git 写入；未更改 ACL、未绕过权限 | 尚未暂存/提交，待环境权限修复 |
+| V5-016 | 代理环境中 git add --all 无法创建 .git/index.lock，Permission denied；不存在遗留锁 | 用户在外部终端完成提交，未更改 ACL 或绕过权限 | 提交 4d01277，base/head 验证通过 |
+| V5-017 | 记录未编辑时 git commit 返回 nothing to commit，被指南误报为提交失败 | 提交前检查暂存区，0 跳过、1 提交、其他状态报错 | 指南语法及只读分支检查通过；实际新增提交仍由用户执行 |
 
 ## 统一验证结果（2026-10-25）
 
@@ -50,23 +51,16 @@
 - PowerShell 入口语法通过；在中文/空格临时目录完成真实安装、doctor、卸载，原配置保留。
 - 双项目共用 Kimi 配置经 Python tomllib 解析：6 个合法注册，用户 model 设置保留。
 - Git base/head、脏工作区隔离、测试子进程失败码和真实 Hook CLI 已纳入 46 项自动回归。
-- 临时安装目录、下载包、测试输出位于忽略的 .tmp/；会话状态不提交。原有 AGENTS.md 原文保留，原有 openSDD.rar 拟原样纳入提交并注明 V4 归档。
+- 临时安装目录、下载包、测试输出位于忽略的 .tmp/；会话状态不提交。原有 AGENTS.md 原文保留，原有 openSDD.rar 已原样纳入主体提交并注明 V4 归档。
 - 最后只读审查覆盖 62 个变更文件：文本编码检查未发现替代字符，常见明文密钥模式扫描无匹配，无临时目录或会话状态进入待提交文件列表。
 
-## Git 收尾待办
+## Git 收尾结果
 
-当前 HEAD 仍为 b197183，所有交付文件保留在工作区；Git 写权限恢复后执行：
+主体提交：`4d01277207c6d4c4c4be188287307b6154a3c9df`（Add portable SDD runtime and multi-tool integrations）。检查时工作区干净，用户的第二次提交因没有记录改动而正常返回 nothing to commit；不是主体提交失败。
 
-```text
-git add --all
-git diff --cached --check
-git diff --cached --stat
-git commit -m "Add portable SDD runtime and multi-tool integrations"
-node runtime/cli.mjs validate --project . --base b197183 --head HEAD
-git status --short
-```
+已实际执行 `node runtime/cli.mjs validate --project . --base b197183 --head HEAD`：返回 ok=true、status=passed，21 个代码文件、0 问题、0 例外，证据来自已提交 HEAD 而非工作区。
 
-若提交范围验证失败，应记录问题、修复、重新 verify、提交并重复验证。成功后更新本执行计划和验证记录。实际仓库 .git 不在本会话可写 Git 元数据路径内；本会话不能申请权限升级，因此尚未执行上述提交，不能宣称 Git 收尾完成。
+已更新本计划、验证记录与 GIT-COMMIT-INSTRUCTIONS.md，修正空提交误报。请执行指南第 5 步提交这三份文档，再重复提交范围验证；此记录不预先声称新的文档提交已完成。
 
 ## 宿主验证边界
 

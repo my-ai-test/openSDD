@@ -54,8 +54,16 @@ git status --short
 
 ```powershell
 & {
-    git commit -m "Add portable SDD runtime and multi-tool integrations"
-    if ($LASTEXITCODE -ne 0) { throw '提交失败' }
+    git diff --cached --quiet
+    $stagedExit = $LASTEXITCODE
+    if ($stagedExit -eq 1) {
+        git commit -m "Add portable SDD runtime and multi-tool integrations"
+        if ($LASTEXITCODE -ne 0) { throw '提交失败' }
+    } elseif ($stagedExit -eq 0) {
+        Write-Host '没有暂存改动，跳过提交，继续验证。'
+    } else {
+        throw '无法检查暂存区'
+    }
 
     node runtime/cli.mjs validate --project . --base b197183 --head HEAD
     if ($LASTEXITCODE -ne 0) { throw '提交后验证失败，请记录问题并修复' }
@@ -74,18 +82,28 @@ git status --short
 - `SDD/02-plans/multi-tool-migration.md`
 - `SDD/02-plans/migration-validation.md`
 
+`git add` 只暂存已发生的编辑，不会自动更新记录。若记录没有改动，Git 的 `nothing to commit` 是正常状态；以下命令会跳过空提交，继续验证。命令也会暂存本指南的修订。
+
 然后执行：
 
 ```powershell
 & {
-    git add -- SDD/02-plans/multi-tool-migration.md SDD/02-plans/migration-validation.md
+    git add -- SDD/02-plans/multi-tool-migration.md SDD/02-plans/migration-validation.md GIT-COMMIT-INSTRUCTIONS.md
     if ($LASTEXITCODE -ne 0) { throw '记录暂存失败' }
 
     git diff --cached --check
     if ($LASTEXITCODE -ne 0) { throw '记录格式检查失败' }
 
-    git commit -m "Record successful migration commit verification"
-    if ($LASTEXITCODE -ne 0) { throw '记录提交失败' }
+    git diff --cached --quiet
+    $stagedExit = $LASTEXITCODE
+    if ($stagedExit -eq 1) {
+        git commit -m "Record successful migration commit verification"
+        if ($LASTEXITCODE -ne 0) { throw '记录提交失败' }
+    } elseif ($stagedExit -eq 0) {
+        Write-Host '没有暂存改动，跳过记录提交，继续验证。'
+    } else {
+        throw '无法检查暂存区'
+    }
 
     node runtime/cli.mjs validate --project . --base b197183 --head HEAD
     if ($LASTEXITCODE -ne 0) { throw '最终提交验证失败' }
