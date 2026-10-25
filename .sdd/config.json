@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "frameworkDir": ".",
+  "codeDirs": ["runtime", "adapters", "scripts", "hooks", "install.sh", "install.ps1"],
+  "specDirs": ["SDD/01-specs"],
+  "profiles": [],
+  "testCommand": { "command": "node", "args": ["scripts/check-all.mjs"] },
+  "unknownTools": "audit"
+}

@@ -1,12 +1,12 @@
 ---
 name: sdd-init-project
 description: This skill should be used when the user asks to "初始化SDD项目", "从零搭建新项目", "initialize a new SDD project", "start a project with SDD framework", "create project skeleton", or mentions starting a brand-new project from scratch using Spec-Driven Development methodology.
-version: 1.1.0
-user-invocable: true
-argument-hint: "[项目名称]"
 ---
 
-# /sdd-init-project — 初始化 SDD 项目
+> 先读消费项目 `.sdd/config.json` 和框架 `rules/core.md`。FRAMEWORK_DIR、SPEC_DIR、代码路径与测试命令以配置为准；示例 SDD 路径按项目替换。DDD、TypeScript/Jest 和企业规范仅在对应 profile 启用时适用。调用入口见框架 `docs/hosts.md`。
+
+
+# sdd-init-project — 初始化 SDD 项目
 
 > **L3 Skill（顶层 Orchestrator）**：从零开始创建 SDD 项目的完整引导流程。
 > 内部编排：环境准备 → 产品洞察 → DDD 设计 → 规格骨架 → 逐 BC/FD 实现。
@@ -50,7 +50,7 @@ Phase 6：治理文件      BACKLOG + ADR + CHANGELOG
 | 从零开始的新项目 | Phase 0 → Phase 1 → … 完整流程 |
 | 已有代码 + 无规格 | Phase 1（补产品洞察）→ Phase 2（重识 BC）→ Phase 3–5 |
 | 已有 BC 设计 + 无详细规格 | Phase 3（补横截面规格骨架）→ Phase 4–5 |
-| 已有规格 + 逐 FD 实现 | 直接 Phase 5，单 FD 用 `/sdd-implement-feature` |
+| 已有规格 + 逐 FD 实现 | 直接 Phase 5，单 FD 用 `sdd-implement-feature` |
 
 ---
 
@@ -58,12 +58,7 @@ Phase 6：治理文件      BACKLOG + ADR + CHANGELOG
 
 ### 0-A：确认框架安装
 
-验证以下文件存在：
-- [ ] `.claude/skills/sdd-*/SKILL.md`（Skills）
-- [ ] `.claude/hooks/spec-first-guard.sh`（守护 Hook）
-- [ ] 项目根目录 `.claude/settings.json` 中 Hooks 已配置且路径正确（由 `install.sh` 自动生成）
-
-若未安装，参考 `sdd-framework/README.md` 完成安装后再继续。
+读取 `.sdd/config.json`，运行框架 `runtime/cli.mjs doctor --project <项目根>`。确认共享 Skills、规则入口和所选适配器已安装；静态检查与真实宿主激活状态分别报告。安装方法见框架 README 与 docs/hosts.md。
 
 ### 0-B：创建 SDD 目录骨架
 
@@ -289,7 +284,7 @@ graph LR
 
 2. **API_SPEC.md**
    - 先：`Read {FRAMEWORK_DIR}/templates/spec/L1-API_SPEC.md`
-   - 再：填充 §1–§8 总览（§9 端点契约在 Phase 5 逐 FD 实现时补充）
+   - 再：填充 全局约定与端点索引（详细契约在 Phase 5 逐 FD 实现时补充）
 
 3. **UI_SPEC.md**
    - 先：`Read {FRAMEWORK_DIR}/templates/spec/L1-UI_SPEC.md`
@@ -300,7 +295,7 @@ graph LR
    - 再：填充认证方式和权限矩阵骨架
 
 > 此阶段只需完成框架和已知内容，FD 实现阶段持续补充。  
-> `{FRAMEWORK_DIR}` 见 CLAUDE.md 项目上下文节中的 `{{FRAMEWORK_DIR}}` 值。
+> `{FRAMEWORK_DIR}` 见 项目规则与 .sdd/config.json 项目上下文节中的 `{{FRAMEWORK_DIR}}` 值。
 
 ---
 
@@ -318,7 +313,7 @@ graph LR
 
 ## Phase 4：逐 BC 循环
 
-对每个 BC，调用 `/sdd-bc-design`：
+对每个 BC，加载并执行 `sdd-bc-design`：
 
 ```
 For each BC in BC清单:
@@ -330,7 +325,7 @@ For each BC in BC清单:
 
 **完成标准**：所有 BC 完成后，DOMAIN_EVENT_CATALOG.md 中应包含全部跨 BC 通信事件。
 
-**Quality Gate（推荐）**：每个 BC 设计完成后，用 `/sdd-review-spec` 检查 BC spec 质量（AC 格式 + 覆盖矩阵 + 企业规范合规）。所有 BC 通过后再进入 Phase 5。
+**Quality Gate（推荐）**：每个 BC 设计完成后，用 `sdd-review-spec` 检查 BC spec 质量（AC 格式 + 覆盖矩阵 + 企业规范合规）。所有 BC 通过后再进入 Phase 5。
 
 ---
 
@@ -343,12 +338,12 @@ For each FD in priority_order:
   1. /sdd-generate-uj FD-{NN} {名称}   # 若该 FD 涉及复杂多角色交互（补充详细 UJ/US）
   2. /sdd-implement-feature FD-{NN} {名称}
   3. 确认测试通过
-  4. git commit（每 FD 一次提交）
+  4. 完成验证；仅在用户授权时 git commit
 ```
 
-> **与 Phase 1 UJ 的区别**：Phase 1 生成的是跨 BC 骨干 UJ（宏观视角）；Phase 5 的 `/sdd-generate-uj` 生成该 FD 内部的详细 UJ，含 A/B/C/D 四类完整 alt 分支，作为 AC 设计的前置输入。
+> **与 Phase 1 UJ 的区别**：Phase 1 生成的是跨 BC 骨干 UJ（宏观视角）；Phase 5 的 `sdd-generate-uj` 生成该 FD 内部的详细 UJ，含 A/B/C/D 四类完整 alt 分支，作为 AC 设计的前置输入。
 
-> **横截面文档持续更新**：每个 FD 实现完成后，`/sdd-implement-feature` Step 7 自检表（文档门禁）会驱动 DATA_SPEC / API_SPEC / UI_SPEC / SECURITY_SPEC 同步更新——这是 Phase 3 骨架的持续填充机制。
+> **横截面文档持续更新**：每个 FD 实现完成后，`sdd-implement-feature` Step 7 自检表（文档门禁）会驱动 DATA_SPEC / API_SPEC / UI_SPEC / SECURITY_SPEC 同步更新——这是 Phase 3 骨架的持续填充机制。
 
 **提交信息格式**：
 ```
@@ -356,8 +351,8 @@ TicketNo: {ticket-id}
 Description: {项目名} FD-{NN} {FD名称}：{简要描述}
 ```
 
-> `/sdd-implement-feature` 内部已包含 AC 生成和测试推导流程；  
-> `/sdd-generate-uj` 适用于涉及 ≥2 个角色跨 BC 协作的 FD。
+> `sdd-implement-feature` 内部已包含 AC 生成和测试推导流程；
+> `sdd-generate-uj` 适用于涉及 ≥2 个角色跨 BC 协作的 FD。
 
 ---
 
@@ -400,6 +395,6 @@ Description: {项目名} FD-{NN} {FD名称}：{简要描述}
 
 ## 与其他 Skills 的关系
 
-- **调用**：`/sdd-bc-design`（Phase 4）、`/sdd-implement-feature`（Phase 5）、`/sdd-generate-uj`（Phase 5 可选）
+- **调用**：`sdd-bc-design`（Phase 4）、`sdd-implement-feature`（Phase 5）、`sdd-generate-uj`（Phase 5 可选）
 - 本 Skill 是调用链的顶点（L3），适合新项目启动或重大重构时使用
 - 已有项目迁移：从 Phase 1 开始（补充角色/能力分析），或从 Phase 4 开始（已有 BC 设计）

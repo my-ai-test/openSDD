@@ -1,0 +1,11 @@
+{
+  "name": "opensdd-framework",
+  "version": "5.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.15" },
+  "scripts": {
+    "test": "node --test --test-isolation=none tests/*.test.mjs",
+    "check": "node scripts/check-repository.mjs"
+  }
+}

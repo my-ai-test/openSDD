@@ -1,12 +1,12 @@
 ---
 name: sdd-bc-design
 description: This skill should be used when the user asks to "设计BC", "领域建模", "design a bounded context", "create BC spec", "聚合根设计", "划分BC边界", or mentions designing a Bounded Context with aggregates, domain events, invariants, value objects, and context mapping.
-version: 1.0.0
-user-invocable: true
-argument-hint: "<BC编号> <BC名称>"
 ---
 
-# /sdd-bc-design — BC 领域设计
+> 先读消费项目 `.sdd/config.json` 和框架 `rules/core.md`。FRAMEWORK_DIR、SPEC_DIR、代码路径与测试命令以配置为准；示例 SDD 路径按项目替换。DDD、TypeScript/Jest 和企业规范仅在对应 profile 启用时适用。调用入口见框架 `docs/hosts.md`。
+
+
+# sdd-bc-design — BC 领域设计
 
 > **L2 Skill**：为一个限界上下文（Bounded Context）完成完整的领域模型设计，
 > 输出 BC spec、聚合根骨架、领域事件清单。
@@ -17,7 +17,7 @@ argument-hint: "<BC编号> <BC名称>"
 
 **调用此 Skill 前，必须确认 `{{SPEC_DIR}}/DDD_SPEC.md` 已就位**（默认：`SDD/01-specs/DDD_SPEC.md`）：
 - 若存在 → 先 `Read DDD_SPEC.md §1.3 BC 清单` 和 `§2–§7 架构约束`，以此为设计约束
-- 若不存在 → 停止，提示用户先完成 `/sdd-init-project Phase 2`（DDD 战略设计 + DDD_SPEC 创建）
+- 若不存在 → 停止，提示用户先完成 `sdd-init-project Phase 2`（DDD 战略设计 + DDD_SPEC 创建）
 
 ## 输入
 
@@ -187,12 +187,12 @@ status: draft | review | approved
 ## 输出产物
 
 1. `{{SPEC_DIR}}/bc/bc-{NN}-{domain}/spec.md` — BC 规格文件（默认：`SDD/01-specs/bc/bc-{NN}-{domain}/spec.md`）
-2. `{CODE_DIRS}/domain/bc-{NN}-{domain}/` — 聚合根 + 值对象骨架代码（含 TODO 标注）；`CODE_DIRS` 对应 CLAUDE.md 中 `{{CODE_DIRS}}` 配置，如 `apps/api/src` 或 `src`
+2. `{CODE_DIRS}/domain/bc-{NN}-{domain}/` — 聚合根 + 值对象骨架代码（含 TODO 标注）；`CODE_DIRS` 对应 项目规则与 .sdd/config.json 中 `{{CODE_DIRS}}` 配置，如 `apps/api/src` 或 `src`
 3. `{{SPEC_DIR}}/DOMAIN_EVENT_CATALOG.md` 新增条目（默认：`SDD/01-specs/DOMAIN_EVENT_CATALOG.md`）
 
 ---
 
 ## 与其他 Skills 的关系
 
-- 通常在 `/sdd-init-project` 中调用（逐 BC 循环）
-- 每个 BC 完成后，用 `/sdd-implement-feature` 逐一实现各 FD
+- 通常在 `sdd-init-project` 中调用（逐 BC 循环）
+- 每个 BC 完成后，用 `sdd-implement-feature` 逐一实现各 FD

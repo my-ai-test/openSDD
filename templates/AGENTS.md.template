@@ -1,0 +1,7 @@
+# {{PROJECT_NAME}} SDD 项目指南
+
+读取 `.sdd/config.json`，再读取其中 `frameworkDir` 下的 `rules/core.md`。目录相对项目根解析，按 `profiles` 加载规则。
+
+先做只读调查和 AC 分析，确认规格与测试设计后才写业务代码。任务证据与绑定见框架 `docs/runtime.md`，工具入口见 `docs/hosts.md`。
+
+技术栈：{{TECH_STACK}}。测试命令以项目配置为准。

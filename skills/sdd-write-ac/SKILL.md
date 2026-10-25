@@ -1,12 +1,12 @@
 ---
 name: sdd-write-ac
 description: This skill should be used when the user asks to "写验收标准", "生成AC", "write acceptance criteria", "create AC for a feature", "补充spec的AC节", or mentions generating testable acceptance criteria (AC) for a Feature Domain spec file using the EARS format and six-layer model.
-version: 1.0.0
-user-invocable: true
-argument-hint: "<FD编号> <FD名称>"
 ---
 
-# /sdd-write-ac — 写验收标准（AC 生成）
+> 先读消费项目 `.sdd/config.json` 和框架 `rules/core.md`。FRAMEWORK_DIR、SPEC_DIR、代码路径与测试命令以配置为准；示例 SDD 路径按项目替换。DDD、TypeScript/Jest 和企业规范仅在对应 profile 启用时适用。调用入口见框架 `docs/hosts.md`。
+
+
+# sdd-write-ac — 写验收标准（AC 生成）
 
 > **L1 Skill**：将特性描述展开为完整的、可测试的验收标准（Acceptance Criteria）。
 > 适用于新建 FD spec 或补充已有 spec 中的 AC 节。
@@ -40,7 +40,7 @@ argument-hint: "<FD编号> <FD名称>"
 
 ### 阶段二：按 AC 类型展开六层模型
 
-> 权威来源：`sdd-framework/standards/six-layer-model.md`（含 AC 类型识别指南与展开示例）
+> 权威来源：`{FRAMEWORK_DIR}/standards/six-layer-model.md`（含 AC 类型识别指南与展开示例）
 
 识别每个功能点的 AC 类型，按对应层次展开：
 
@@ -141,13 +141,13 @@ THEN 系统返回错误，errorCode = `errorcode.{appname}.{module}.{exception}`
 
 **格式规则**：
 - EARS 主句描述**业务意图**（不可缺少）
-- 场景表描述**测试枚举**（辅助 `/sdd-write-tests` 生成测试，可选）
+- 场景表描述**测试枚举**（辅助 `sdd-write-tests` 生成测试，可选）
 - 错误 AC 中错误码必须用完整格式，不得只写 `notFound`
 
 ---
 
 ## 与其他 Skills 的关系
 
-- 本 Skill 的输出是 `/sdd-write-tests` 的输入
-- 通常由 `/sdd-implement-feature` 在第 2 步自动调用
-- 若需先生成 UJ/US，先运行 `/sdd-generate-uj`
+- 本 Skill 的输出是 `sdd-write-tests` 的输入
+- 通常由 `sdd-implement-feature` 在第 2 步自动调用
+- 若需先生成 UJ/US，先运行 `sdd-generate-uj`

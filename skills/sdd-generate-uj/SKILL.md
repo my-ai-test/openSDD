@@ -1,12 +1,12 @@
 ---
 name: sdd-generate-uj
-description: This skill should be used when the user asks to "生成用户旅程", "写UJ", "���成US", "generate user journeys", "create user stories", "写UJ和US", "生成用户故事", or mentions generating User Journey (UJ) diagrams and User Story (US) content for USER_JOURNEY_SPEC.md or a feature spec file.
-version: 1.0.0
-user-invocable: true
-argument-hint: "<FD编号> <FD名称>"
+description: This skill should be used when the user asks to "生成用户旅程", "写UJ", "生成US", "generate user journeys", "create user stories", "写UJ和US", "生成用户故事", or mentions generating User Journey (UJ) diagrams and User Story (US) content for USER_JOURNEY_SPEC.md or a feature spec file.
 ---
 
-# /sdd-generate-uj — 生成用户旅程与用户故事
+> 先读消费项目 `.sdd/config.json` 和框架 `rules/core.md`。FRAMEWORK_DIR、SPEC_DIR、代码路径与测试命令以配置为准；示例 SDD 路径按项目替换。DDD、TypeScript/Jest 和企业规范仅在对应 profile 启用时适用。调用入口见框架 `docs/hosts.md`。
+
+
+# sdd-generate-uj — 生成用户旅程与用户故事
 
 > **工具 Skill**：系统化生成 User Journey（UJ）和 User Story（US），
 > 输出结构化的 `USER_JOURNEY_SPEC.md` 内容和 FD spec 的用户故事节。
@@ -19,8 +19,8 @@ argument-hint: "<FD编号> <FD名称>"
 
 | 阶段 | 调用方 | 范围 | 深度 |
 |------|--------|------|------|
-| **项目初始化 Phase 1-D** | `/sdd-init-project` | 全项目高层跨 BC 骨干 UJ | A/D 类为主，主路径节点，无需详细 alt 分支 |
-| **FD 实现 Phase 5 前** | `/sdd-implement-feature` 前置 / 用户手动 | 单个 FD 的详细 UJ | A/B/C/D 四类完整展开，含 alt 分支，作为 AC 前置输入 |
+| **项目初始化 Phase 1-D** | `sdd-init-project` | 全项目高层跨 BC 骨干 UJ | A/D 类为主，主路径节点，无需详细 alt 分支 |
+| **FD 实现 Phase 5 前** | `sdd-implement-feature` 前置 / 用户手动 | 单个 FD 的详细 UJ | A/B/C/D 四类完整展开，含 alt 分支，作为 AC 前置输入 |
 
 > 同一 UJ 不需要生成两次。Phase 1 生成后，Phase 5 只补充 Phase 1 未覆盖的 FD 内部细节。
 
@@ -71,7 +71,7 @@ argument-hint: "<FD编号> <FD名称>"
 | `UJ-{BC编号}-{NN}-A/B/C/D` | 标准格式：BC 编号（01/02…）+ 序号 + 类型字母 | `UJ-01-01-A`（BC-01 第1个主路径 UJ）|
 | `UJ-{BC缩写}-{NN}-A/B/C/D` | 可读格式：BC 英文缩写 + 序号 + 类型字母（可选）| `UJ-ORD-01-A`（Order BC 第1个 UJ）|
 
-> **选哪种**：项目统一选定一种，在 CLAUDE.md 或 USER_JOURNEY_SPEC.md 开头声明。
+> **选哪种**：项目统一选定一种，在 项目规则与 .sdd/config.json 或 USER_JOURNEY_SPEC.md 开头声明。
 > 同一项目内不允许混用两种格式。
 
 ---
@@ -222,6 +222,6 @@ So that {合规/监管目的}.
 
 ## 与其他 Skills 的关系
 
-- 本 Skill 输出是 `/sdd-write-ac` 的前置输入（US → AC）
-- 可在 `/sdd-implement-feature` Step 1 之前调用（需要 UJ/US 时先行生成）；也可由 `/sdd-init-project` Phase 4 驱动
+- 本 Skill 输出是 `sdd-write-ac` 的前置输入（US → AC）
+- 可在 `sdd-implement-feature` Step 1 之前调用（需要 UJ/US 时先行生成）；也可由 `sdd-init-project` Phase 4 驱动
 - 也可独立调用，用于产品规划阶段的 UJ 梳理

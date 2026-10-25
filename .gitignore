@@ -8,3 +8,10 @@ Thumbs.db
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Framework development caches and machine-local execution state
+.tmp/
+node_modules/
+.sdd/state/
+.sdd/install-manifest.json
+.sdd/install.lock/

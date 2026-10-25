@@ -1,12 +1,12 @@
 ---
 name: sdd-write-tests
 description: This skill should be used when the user asks to "写测试", "生成测试用例", "write unit tests", "create tests from AC", "AC驱动测试", "推导测试", or mentions generating test cases driven by acceptance criteria (not implementation code), including AppService tests, aggregate tests, and mapper tests.
-version: 1.0.0
-user-invocable: true
-argument-hint: "<spec.md路径> <被测模块名>"
 ---
 
-# /sdd-write-tests — 写测试用例（AC 驱动）
+> 先读消费项目 `.sdd/config.json` 和框架 `rules/core.md`。FRAMEWORK_DIR、SPEC_DIR、代码路径与测试命令以配置为准；示例 SDD 路径按项目替换。DDD、TypeScript/Jest 和企业规范仅在对应 profile 启用时适用。调用入口见框架 `docs/hosts.md`。
+
+
+# sdd-write-tests — 写测试用例（AC 驱动）
 
 > **L1 Skill**：从验收标准（AC）推导单元测试，严格禁止从实现代码推导。
 > 适用于 AppService、Domain Aggregate、Mapper、Controller 任意层的测试编写。
@@ -62,7 +62,7 @@ argument-hint: "<spec.md路径> <被测模块名>"
 
 ### 阶段二：六层展开
 
-> 权威来源：`sdd-framework/standards/six-layer-model.md`（含覆盖要求矩阵与 AC 类型识别指南）
+> 权威来源：`{FRAMEWORK_DIR}/standards/six-layer-model.md`（含覆盖要求矩阵与 AC 类型识别指南）
 
 按 AC 类型选用对应层次（M=必须，O=推荐）：
 
@@ -75,7 +75,11 @@ L5 组合测试 — 多参数组合（搜索词 × 过滤器 × 排序）
 L6 错误猜测 — not-found、already-exists、concurrent、null input
 ```
 
-### 阶段三：编写 Mock 工厂
+### 阶段三：先固化场景，再编写测试
+
+在实现前将 AC → 预期结果/边界场景写入任务 testPlan 文档。实现阶段按接口签名完善 fixture 与测试代码；断言仍以固化场景为准。
+
+### 编写 Mock 工厂
 
 每个被测模块必须有**完整接口 Mock 工厂函数**：
 
@@ -118,7 +122,7 @@ expect(events.some(e => e instanceof XxxEvent)).toBe(true);
 
 ### 阶段四：错误码格式
 
-> 权威来源：`sdd-framework/standards/error-code-format.md`（含格式定义、常用异常名称约定、HTTP 状态码规范）
+> 权威来源：`{FRAMEWORK_DIR}/standards/error-code-format.md`（含格式定义、常用异常名称约定、HTTP 状态码规范）
 
 验证错误码时使用完整 4 段格式：
 ```typescript
@@ -181,13 +185,13 @@ describe('XxxAppService', () => {
 ## 输出
 
 - 完整的 TypeScript 测试文件，路径与被测模块相同，扩展名 `.spec.ts`
-- 执行 `npx jest --no-coverage --testPathPattern="<module-name>"` 验证全部通过
+- 执行 `<项目配置中的 testCommand>` 验证全部通过
 - 输出通过率：`X passed, Y total`
 
 ---
 
 ## 与其他 Skills 的关系
 
-- 本 Skill 消费 `/sdd-write-ac` 的输出（AC 表）
-- 通常由 `/sdd-implement-feature` 在第 5 步调用
-- 领域层测试（聚合根）可独立调用本 Skill，无需先调用 `/sdd-write-ac`
+- 本 Skill 消费 `sdd-write-ac` 的输出（AC 表）
+- 通常由 `sdd-implement-feature` 在第 5 步调用
+- 领域层测试（聚合根）可独立调用本 Skill，无需先加载并执行 `sdd-write-ac`

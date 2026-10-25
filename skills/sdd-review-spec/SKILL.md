@@ -1,12 +1,12 @@
 ---
 name: sdd-review-spec
 description: This skill should be used when the user asks to "审查规格", "检查spec", "review a spec file", "规格质量检查", "check AC quality", "spec质量自检", "审计spec", or mentions reviewing, auditing, or checking the quality of a spec file (feature spec, BC spec, or cross-cutting spec).
-version: 1.0.0
-user-invocable: true
-argument-hint: "<spec文件路径> [ac|completeness|quick]"
 ---
 
-# /sdd-review-spec — 规格质量自检
+> 先读消费项目 `.sdd/config.json` 和框架 `rules/core.md`。FRAMEWORK_DIR、SPEC_DIR、代码路径与测试命令以配置为准；示例 SDD 路径按项目替换。DDD、TypeScript/Jest 和企业规范仅在对应 profile 启用时适用。调用入口见框架 `docs/hosts.md`。
+
+
+# sdd-review-spec — 规格质量自检
 
 > **工具 Skill**：对已有 spec 文件进行全面质量审查，
 > 输出问题清单和改进建议，不自动修改文件。
@@ -82,21 +82,9 @@ L1/L2/L6 是必须覆盖层（M），其他视 AC 类型决定。
 
 ### BC Spec 审查
 
-#### BC Spec 9 节完整性
+#### BC Spec 模板完整性
 
-```markdown
-| 节 | 标题 | 状态 | 问题 |
-|----|------|------|------|
-| §1 | 职责声明 | ✅/❌ | |
-| §2 | 统一语言 | ✅/❌ | |
-| §3 | 聚合根清单 | ✅/❌ | |
-| §4 | 值对象清单 | ✅/❌ | |
-| §5 | 领域事件清单 | ✅/❌ | |
-| §6 | 资源库 Port 接口 | ✅/❌ | |
-| §7 | Context Map | ✅/❌ | |
-| §8 | 业务规则 | ✅/❌ | |
-| §9 | 不变量 | ✅/❌ | |
-```
+以框架 `templates/spec/L1-BC_SPEC.md` 的通用语言、聚合根、实体/值对象、领域服务、发出/消费事件、API、数据边界、Context Map 为检查项，不使用 DDD_SPEC 的虚构章节。
 
 #### DDD 设计问题检查
 
@@ -113,33 +101,33 @@ L1/L2/L6 是必须覆盖层（M），其他视 AC 类型决定。
 
 #### DATA_SPEC 审查
 
-检查 CLAUDE.md 规则 11（§11.1）中声明的企业 DB 规范是否满足。
-若 CLAUDE.md 未配置企业规范，跳过此节（标注 N/A）。
+检查 项目 enterprise profile 与 DATA_SPEC中声明的企业 DB 规范是否满足。
+若 项目规则与 .sdd/config.json 未配置企业规范，跳过此节（标注 N/A）。
 
-常见检查项（以 CLAUDE.md §11.1 内容为准，以下为示例）：
+常见检查项（以 项目 enterprise profile 与 DATA_SPEC 内容为准，以下为示例）：
 
 ```
-☐ 表名格式符合 {prefix}_{name}_t 约定（查看 CLAUDE.md §11.1 确认前缀规则）
-☐ 审计字段完整（CLAUDE.md §11.1 中声明的必填字段）
-☐ 主键类型符合约定（UUID/自增等，以 CLAUDE.md §11.1 为准）
+☐ 表名格式符合 {prefix}_{name}_t 约定（查看 项目 enterprise profile 与 DATA_SPEC 确认前缀规则）
+☐ 审计字段完整（项目 enterprise profile 与 DATA_SPEC 中声明的必填字段）
+☐ 主键类型符合约定（UUID/自增等，以 项目 enterprise profile 与 DATA_SPEC 为准）
 ☐ 索引命名前缀符合约定
 ☐ 软删除字段存在（若项目使用软删除）
 ```
 
-> **注**：具体规范内容从项目 CLAUDE.md §11.1 读取，本 Skill 不硬编码特定企业规范。
+> **注**：具体规范内容从项目 项目 enterprise profile 与 DATA_SPEC 读取，本 Skill 不硬编码特定企业规范。
 
 #### API_SPEC 审查
 
 ```
-§9 端点契约完整性检查（每个端点必须有）：
+端点详细契约完整性检查（每个端点必须有）：
   [ ] 方法 + 完整路径
   [ ] 权限要求
   [ ] 请求体 Schema（字段/类型/必填/约束）
   [ ] 成功响应 Schema（HTTP 状态码/字段/类型）
   [ ] 错误码列表（≥ notFound/forbidden/invalidInput 场景，业务异常返回 HTTP 200）
-       → 权威来源：sdd-framework/standards/error-code-format.md
+       → 权威来源：{FRAMEWORK_DIR}/standards/error-code-format.md
 
-仅列在 §6 索引表中，§9 缺少详细契约 → 不合规
+只有端点索引、没有完整详细契约 → 不合规
 ```
 
 ---
@@ -193,5 +181,5 @@ L1/L2/L6 是必须覆盖层（M），其他视 AC 类型决定。
 ## 与其他 Skills 的关系
 
 - 独立工具，任何时候均可调用
-- 在 `/sdd-implement-feature` Step 2 结束后，建议调用本 Skill 做质量门禁
+- 在 `sdd-implement-feature` Step 2 结束后，建议调用本 Skill 做质量门禁
 - 在 PR 前的最终检查中使用

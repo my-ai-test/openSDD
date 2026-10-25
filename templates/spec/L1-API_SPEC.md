@@ -10,6 +10,8 @@ data_spec_ref: "SDD/01-specs/DATA_SPEC.md v1.0"
 ddd_spec_ref: "SDD/01-specs/DDD_SPEC.md v1.0"
 ---
 
+> 企业错误码、HTTP 200 业务错误和审计字段示例仅在 enterprise profile 启用时适用；其他项目采用自身约定。
+
 # API 接口规格
 
 > ⚡ **API 先行原则（Rule 10）**：本文件是 API 契约的唯一权威来源。  

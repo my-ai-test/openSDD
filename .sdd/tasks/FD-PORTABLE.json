@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "id": "FD-PORTABLE",
+  "status": "open",
+  "mode": "spec-change",
+  "specs": [
+    {
+      "path": "SDD/01-specs/features/multi-tool-runtime/spec.md",
+      "acs": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004",
+        "AC-005",
+        "AC-006",
+        "AC-007",
+        "AC-008",
+        "AC-009",
+        "AC-010"
+      ]
+    }
+  ],
+  "codePaths": [
+    "runtime/",
+    "adapters/",
+    "scripts/",
+    "hooks/",
+    "install.sh",
+    "install.ps1"
+  ],
+  "testPlan": "SDD/02-plans/migration-test-design.md",
+  "tests": [
+    {
+      "path": "tests/runtime.test.mjs",
+      "acs": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-004"
+      ]
+    },
+    {
+      "path": "tests/adapters.test.mjs",
+      "acs": [
+        "AC-005"
+      ]
+    },
+    {
+      "path": "tests/install.test.mjs",
+      "acs": [
+        "AC-006",
+        "AC-009"
+      ]
+    },
+    {
+      "path": "tests/validation.test.mjs",
+      "acs": [
+        "AC-007",
+        "AC-008"
+      ]
+    },
+    {
+      "path": "tests/portability.test.mjs",
+      "acs": [
+        "AC-007"
+      ]
+    },
+    {
+      "path": "tests/helpers.mjs",
+      "acs": [
+        "AC-010"
+      ]
+    },
+    {
+      "path": "tests/fixtures/hooks.json",
+      "acs": [
+        "AC-010"
+      ]
+    }
+  ],
+  "prepared": {
+    "files": {
+      "SDD/01-specs/features/multi-tool-runtime/spec.md": "688c3d1c0d25dd5c288839afeff9546a4d83800452e9fb7ec28c66500ed4e321",
+      "SDD/02-plans/migration-test-design.md": "43e8df0aae467f88a1e2e0669d053d778754e6bf0c6611d250f89a82a5598918"
+    },
+    "digest": "e22c2a4cf281d61b447804c1af02f0ee5c5ce7214c9bb45d7f758fd44e41cd5e",
+    "generation": "ca98d5f5-ef06-4884-808c-965127911b36",
+    "at": "2026-10-25T11:49:17.797Z"
+  },
+  "verification": {
+    "command": {
+      "command": "node",
+      "args": [
+        "scripts/check-all.mjs"
+      ]
+    },
+    "exitCode": 0,
+    "snapshot": "98a0d675dca8822eb8a7903e27f683f6163538b199d8fb1bce955db211ccf7ea",
+    "at": "2026-10-25T11:49:45.389Z"
+  }
+}

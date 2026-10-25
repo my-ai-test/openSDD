@@ -1,0 +1,8 @@
+{
+  "source": "AC-010: Documented protocol examples, not captured production sessions. Checked 2026-10-25.",
+  "claude": { "hook_event_name": "PreToolUse", "session_id": "s1", "tool_name": "Edit", "tool_input": { "file_path": "src/user.mjs", "old_string": "1", "new_string": "2" } },
+  "codex": { "hook_event_name": "PreToolUse", "session_id": "s1", "tool_name": "apply_patch", "tool_input": { "command": "*** Begin Patch\n*** Update File: src/user.mjs\n@@\n-export const version = 1;\n+export const version = 2;\n*** End Patch" } },
+  "kimi": { "hook_event_name": "PreToolUse", "session_id": "s1", "tool_name": "Edit", "tool_input": { "path": "src/user.mjs", "old": "1", "new": "2" } },
+  "opencode-v1": { "tool": "edit", "sessionID": "s1", "callID": "c1" },
+  "opencode-v2": { "tool": "edit", "sessionID": "s1", "id": "c1", "agent": "build", "messageID": "m1", "input": { "filePath": "src/user.mjs", "oldString": "1", "newString": "2" } }
+}
